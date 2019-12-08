@@ -48,7 +48,7 @@ terraform apply \
   -state=./${K8SANDERMANN_CONFIGURATION}.tfstate \
   ./${K8SANDERMANN_CONFIGURATION}.plan
 
-az aks get-credentials --name cicd-cluster001 --resource-group cicd-cluster001 --subscription 3fb6e3d6-f485-4cac-ae04-b06c555c3e6d --admin --overwrite-existing
+az aks get-credentials --name pipelineCluster001 --resource-group pipelineCluster001 --subscription 3fb6e3d6-f485-4cac-ae04-b06c555c3e6d --admin --overwrite-existing
 kubectl get pods --all-namespaces
 kubectl get cm
 

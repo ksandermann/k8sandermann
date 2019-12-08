@@ -1,61 +1,92 @@
-//pipeline_configs = [
-//  {
-//    name   = "dockerhelm"
-//    number = 1
-//  },
-//  {
-//    name   = "dockeransible"
-//    number = 2
-//  },
-//]
-
 resource "kubernetes_job" "runner" {
-  for_each = var.networks
+  for_each = var.pipelineconfigs
   metadata {
-    name = each.value.nameeins
+    name      = each.value.pipeline_name
+    namespace = var.k8s_pipeline_namespace
   }
   spec {
+    active_deadline_seconds = 3600 //Specifies the duration in seconds relative to the startTime that the job may be active before the system tries to terminate it; value must be positive integer
+    backoff_limit           = 1    //Specifies the number of retries before marking this job failed. Defaults to 6
+    completions             = 1    //Specifies the desired number of successfully finished pods the job should be run with.
+    parallelism             = 1    //Specifies the maximum desired number of pods the job should run at any given time
+
+
     template {
       metadata {}
       spec {
+        active_deadline_seconds          = 3600
+        automount_service_account_token  = false
+        dns_policy                       = "ClusterFirst"
+        host_ipc                         = false
+        host_network                     = false
+        host_pid                         = false
+        restart_policy                   = "Never"
+        share_process_namespace          = false
+        termination_grace_period_seconds = 30
+
         init_container {
-          name  = "unzip"
-          image = "ksandermann/multistage-builder:2019-09-17"
-          command = [
-            "/bin/sh",
+          name              = "unzip"
+          image             = var.k8s_pipeline_container_unzip_image
+          image_pull_policy = "Always"
+          command           = ["/bin/sh"]
+          args = [
             "-c",
-            "unzip /tmp/ansible/ansible.zip -d /root/project"
+            "unzip ${var.ansible_codebase_mountpath}/${var.ansible_configmap_zip_filename} -d ${var.k8s_pipeline_container_workdir}"
           ]
+          stdin      = false
+          stdin_once = false
+          tty        = false
+
+          resources {
+            requests {
+              cpu    = "250m"
+              memory = "256Mi"
+            }
+          }
+
           volume_mount {
-            mount_path = "/tmp/ansible/"
-            name       = "ansible-project"
+            mount_path = var.ansible_codebase_mountpath
+            name       = "ansible-codebase"
           }
           volume_mount {
-            mount_path = "/root/project"
+            mount_path = var.k8s_pipeline_container_workdir
             name       = "workdir"
           }
         }
         container {
-          name  = "pipeline"
-          image = "ksandermann/ansible:2.8.5"
-          command = [
-            "/bin/sh",
+          name              = "builder"
+          image             = each.value.builder_image
+          image_pull_policy = "IfNotPresent"
+          command           = ["/bin/sh"]
+          args = [
             "-c",
-            "ansible-playbook /root/project/ansible/playbooks/hello.yml"
+            "ansible-playbook ${var.k8s_pipeline_container_workdir}/ansible/playbooks/${each.value.playbook_filename}"
           ]
+          stdin      = false
+          stdin_once = false
+          tty        = false
+
+          resources {
+            requests {
+              cpu    = "250m"
+              memory = "256Mi"
+            }
+          }
+
           env {
             name  = "ANSIBLE_ROLES_PATH"
-            value = "/root/project/ansible/roles"
+            value = "${var.k8s_pipeline_container_workdir}/ansible/roles"
           }
           volume_mount {
-            mount_path = "/root/project"
+            mount_path = var.k8s_pipeline_container_workdir
             name       = "workdir"
           }
         }
         volume {
-          name = "ansible-project"
+          name = "ansible-codebase"
           config_map {
-            name = "ansible-project"
+            name         = var.ansible_configmap_name
+            default_mode = "0644"
           }
         }
         volume {
@@ -64,6 +95,5 @@ resource "kubernetes_job" "runner" {
         }
       }
     }
-    backoff_limit = 1
   }
 }
