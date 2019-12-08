@@ -1,6 +1,18 @@
+//pipeline_configs = [
+//  {
+//    name   = "dockerhelm"
+//    number = 1
+//  },
+//  {
+//    name   = "dockeransible"
+//    number = 2
+//  },
+//]
+
 resource "kubernetes_job" "runner" {
+  for_each = var.networks
   metadata {
-    name = "runner001"
+    name = each.value.nameeins
   }
   spec {
     template {

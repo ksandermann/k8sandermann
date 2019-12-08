@@ -1,9 +1,10 @@
 resource "kubernetes_config_map" "ansible_project" {
   metadata {
-    name = "ansible-project"
+    name      = var.ansible_configmap_name
+    namespace = kubernetes_namespace.pipelines.metadata[0].name
   }
 
   binary_data = {
-    "ansible.zip" = filebase64("/root/project/ansible.zip")
+    "${var.ansible_configmap_zip_filename}" = filebase64(var.ansible_codebase_local_zip_filepath)
   }
 }

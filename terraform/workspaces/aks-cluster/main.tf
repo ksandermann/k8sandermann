@@ -16,4 +16,6 @@ module "azure-aks" {
   aks_cluster_rg_name             = var.aks_cluster_rg_name
   aks_svc_principal_client_id     = var.aks_svc_principal_client_id
   aks_svc_principal_client_secret = var.aks_svc_principal_client_secret
+  aks_kubernetes_version          = var.aks_kubernetes_version
+  aks_node_os_disk_gb             = var.aks_node_os_disk_gb
 }
