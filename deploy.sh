@@ -16,18 +16,18 @@ cd /root/project/terraform/
 terraform fmt -recursive
 
 #workspace aks-cluster
-#cd /root/project/terraform/workspaces/aks-cluster
-#rm -rf ./terraform *.plan
-#terraform init
-#terraform get -update
-#terraform validate
-#terraform plan \
-#  -state=./${K8SANDERMANN_CONFIGURATION}.tfstate \
-#  -var-file=/root/project/terraform/configuration/${K8SANDERMANN_CONFIGURATION}.tfvars \
-#  -out=./${K8SANDERMANN_CONFIGURATION}.plan
-#terraform apply \
-#  -state=./${K8SANDERMANN_CONFIGURATION}.tfstate \
-#  ./${K8SANDERMANN_CONFIGURATION}.plan
+cd /root/project/terraform/workspaces/aks-cluster
+rm -rf ./terraform *.plan
+terraform init
+terraform get -update
+terraform validate
+terraform plan \
+  -state=./${K8SANDERMANN_CONFIGURATION}.tfstate \
+  -var-file=/root/project/terraform/configuration/${K8SANDERMANN_CONFIGURATION}.tfvars \
+  -out=./${K8SANDERMANN_CONFIGURATION}.plan
+terraform apply \
+  -state=./${K8SANDERMANN_CONFIGURATION}.tfstate \
+  ./${K8SANDERMANN_CONFIGURATION}.plan
 
 #workspace k8s
 apt-get install -y zip

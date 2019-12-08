@@ -14,23 +14,10 @@ variable "k8s_pipeline_container_workdir" {
   default = "/root/project"
 }
 
-variable "pipelineconfigs" {
+variable "k8s_pipeline_configs" {
   type = map(object({
     pipeline_name     = string
     builder_image     = string
     playbook_filename = string
   }))
-
-  default = {
-    ansible = {
-      pipeline_name     = "ansible"
-      builder_image     = "ksandermann/ansible:2.8.5"
-      playbook_filename = "hello.yml"
-    }
-    helm = {
-      pipeline_name     = "helm"
-      builder_image     = "ksandermann/ansible:2.8.5"
-      playbook_filename = "hello.yml"
-    }
-  }
 }

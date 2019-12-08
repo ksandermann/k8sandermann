@@ -22,6 +22,7 @@ terraform plan \
   -state=./${K8SANDERMANN_CONFIGURATION}.tfstate \
   -var-file=/root/project/terraform/configuration/${K8SANDERMANN_CONFIGURATION}.tfvars \
   -out=./${K8SANDERMANN_CONFIGURATION}.plan
-terraform destroy \
-  -var-file=/root/project/terraform/configuration/${K8SANDERMANN_CONFIGURATION}.tfvars \
-  -state=./${K8SANDERMANN_CONFIGURATION}.tfstate
+terraform apply \
+  -state=./${K8SANDERMANN_CONFIGURATION}.tfstate \
+  ./${K8SANDERMANN_CONFIGURATION}.plan
+

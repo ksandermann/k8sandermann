@@ -16,24 +16,16 @@ ansible_configmap_name              = "ansible-codebase"
 ansible_configmap_zip_filename      = "ansible.zip"
 ansible_codebase_local_zip_filepath = "/root/project/ansible.zip"
 
-//pipeline_configs = {
-//  dockeransible = {
-//    name = "dockeransible"
-//  }
-//
-//  dockerhelm = {
-//    name = "dockerhelm"
-//  }
-//}
 
-//pipeline_configs = [
-//  {
-//    name   = "dockerhelm"
-//    number = 1
-//  },
-//  {
-//    name   = "dockeransible"
-//    number = 2
-//  },
-//]
-
+k8s_pipeline_configs = {
+  ansible = {
+    pipeline_name     = "ansible"
+    builder_image     = "ksandermann/ansible:2.8.5"
+    playbook_filename = "hello.yml"
+  }
+  helm = {
+    pipeline_name     = "helm"
+    builder_image     = "ksandermann/ansible:2.8.5"
+    playbook_filename = "hello.yml"
+  }
+}

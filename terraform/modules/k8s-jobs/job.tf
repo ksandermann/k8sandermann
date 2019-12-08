@@ -1,5 +1,5 @@
 resource "kubernetes_job" "runner" {
-  for_each = var.pipelineconfigs
+  for_each = var.k8s_pipeline_configs
   metadata {
     name      = each.value.pipeline_name
     namespace = var.k8s_pipeline_namespace

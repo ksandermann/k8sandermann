@@ -22,4 +22,5 @@ module "k8s-jobs" {
   ansible_configmap_name         = var.ansible_configmap_name
   ansible_configmap_zip_filename = var.ansible_configmap_zip_filename
   k8s_pipeline_namespace         = module.k8s-base.k8s_pipeline_namespace
+  k8s_pipeline_configs           = var.k8s_pipeline_configs
 }
