@@ -8,6 +8,18 @@ endif
 ifndef CONFIG_NAME
 	$(error - Environment variable CONFIG_NAME is undefined)
 endif
+ifndef ARM_SUBSCRIPTION_ID
+	$(error - Environment variable ARM_SUBSCRIPTION_ID is undefined)
+endif
+ifndef ARM_TENANT_ID
+	$(error - Environment variable ARM_TENANT_ID is undefined)
+endif
+ifndef ARM_CLIENT_ID
+	$(error - Environment variable ARM_CLIENT_ID is undefined)
+endif
+ifndef ARM_CLIENT_SECRET
+	$(error - Environment variable ARM_CLIENT_SECRET is undefined)
+endif
 
 #TODO check if config file exists
 
@@ -82,6 +94,26 @@ force-apply: check-plan-exists
 		-state=./${CONFIG_NAME}.tfstate \
 		-auto-approve \
 		${CONFIG_NAME}.plan \
+
+kubectl-backup-config:
+	@mv -f ~/.kube/config ~/.kube/config_backup.yaml || true
+
+kubectl-restore-config:
+	@mv -f ~/.kube/config_backup.yaml ~/.kube/config || true
+
+az-logout:
+	@az logout || true
+
+.ONESHELL:
+az-login: check-env az-logout
+	@echo "Logging in to Azure..."
+	@az login --service-principal --username "${ARM_CLIENT_ID}" --password "${ARM_CLIENT_SECRET}" --tenant "${ARM_TENANT_ID}"
+	@echo "Setting Subscription to ${ARM_SUBSCRIPTION_ID}..."
+	@az account set -s ${ARM_SUBSCRIPTION_ID}
+
+#TODO get rg and cluster from tf output
+kubectl-get-config: az-login
+	@az aks get-credentials --name pipelineCluster001 --resource-group pipelineCluster001 --subscription ${ARM_SUBSCRIPTION_ID} --admin --overwrite-existing
 
 
 .DEFAULT_GOAL := default

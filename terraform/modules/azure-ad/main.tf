@@ -6,7 +6,7 @@ resource "azuread_service_principal" "aks_cloud_controller" {
   application_id = azuread_application.aks_cloud_controller.application_id
 }
 
-resource "random_string" "aks_sp_password" {
+resource "random_string" "aks_cloud_controller" {
   length  = 16
   special = true
 
@@ -17,7 +17,7 @@ resource "random_string" "aks_sp_password" {
 
 resource "azuread_service_principal_password" "aks_cloud_controller" {
   service_principal_id = azuread_service_principal.aks_cloud_controller.id
-  value                = random_string.aks_sp_password.result
+  value                = random_string.aks_cloud_controller.result
   end_date             = timeadd(timestamp(), "8760h")
 
   # This stops be 'end_date' changing on each run and causing a new password to be set
