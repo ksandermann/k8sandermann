@@ -1,3 +1,13 @@
+//workspace azurerm-backend
+backend_resource_group_name = "tfstates"
+backend_storage_account_name = "ksandermann-tfstates"
+backend_storage_container_name = "tfstates"
+backend_resource_tags = {
+  "content"    = "terraform statefiles"
+  "persistent" = "true"
+}
+
+
 //workspace aks-cluster
 aks_cluster_rg_name = "pipelineCluster001"
 aks_location        = "westeurope"

@@ -1,5 +1,17 @@
 
 ROOT_DIR := $(shell pwd)
+#CHECK_ENV := $(shell exit)
+#BACKEND_RESOURCE_GROUP_NAME := $(shell cat $(ROOT_DIR)/terraform/configuration/${CONFIG_NAME}.tfvars | grep backend_resource_group | sed -e 's/backend_resource_group_name = "\(.*\)"/\1/')
+#BACKEND_STORAGE_ACCOUNT_NAME := $(shell make check-env)
+#BACKEND_STORAGE_CONTAINER_NAME := $(shell pwd)
+#BACKEND_KEY := $(shell pwd)
+
+test123:
+	@cat $(ROOT_DIR)/terraform/configuration/cluster001.tfvars | grep backend_resource_group | sed -e 's/backend_resource_group_name = "\(.*\)"/\1/'
+
+test234:
+	@echo $(CHECK_ENV)
+
 
 check-env:
 ifndef MAKE_WORKSPACE
@@ -28,10 +40,25 @@ clean: check-env
 	@cd ./terraform/workspaces/${MAKE_WORKSPACE}
 	@rm -Rf .terraform
 
+//TODO sed has to except invite space before and after equals sign
 .ONESHELL:
+init: BACKEND_RESOURCE_GROUP_NAME := $(shell cat $(ROOT_DIR)/terraform/configuration/cluster001.tfvars | grep backend_resource_group | sed -e 's/backend_resource_group_name = "\(.*\)"/\1/')
+init: BACKEND_STORAGE_ACCOUNT_NAME:= $(shell cat $(ROOT_DIR)/terraform/configuration/cluster001.tfvars | grep backend_storage_account_name | sed -e 's/backend_storage_account_name = "\(.*\)"/\1/')
+init: BACKEND_STORAGE_CONTAINER_NAME:= $(shell cat $(ROOT_DIR)/terraform/configuration/cluster001.tfvars | grep backend_storage_container_name | sed -e 's/backend_storage_container_name = "\(.*\)"/\1/')
+init: BACKEND_KEY:= $(shell cat $(ROOT_DIR)/terraform/configuration/cluster001.tfvars | grep aks_cluster_name | sed -e 's/aks_cluster_name = "\(.*\)"/\1/')
 init: check-env
 	@cd ./terraform/workspaces/${MAKE_WORKSPACE}
-	@terraform init
+
+	@echo $(BACKEND_RESOURCE_GROUP_NAME)
+	@echo $(BACKEND_STORAGE_ACCOUNT_NAME)
+	@echo $(BACKEND_STORAGE_CONTAINER_NAME)
+	@echo $(BACKEND_KEY)
+	#@terraform init \
+	#	-backend-config="resource_group_name=$(" \
+	#	-backend-config="storage_account_name=$cat $(ROOT_DIR)/terraform/configuration/${CONFIG_NAME}.tfvars | grep backend_storage_account_name | sed -e 's/backend_storage_account_name = "\(.*\)"/\1/')" \
+     #   -backend-config="container_name=$(cat $(ROOT_DIR)/terraform/configuration/${CONFIG_NAME}.tfvars | grep backend_storage_container_name | sed -e 's/backend_storage_container_name = "\(.*\)"/\1/')" \
+      #  -backend-config="key=$(cat $(ROOT_DIR)/terraform/configuration/${CONFIG_NAME}.tfvars | grep aks_cluster_name | sed -e 's/aks_cluster_name = "\(.*\)"/\1/')"
+
 
 force-init: clean init
 

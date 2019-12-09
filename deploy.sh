@@ -11,6 +11,13 @@ export ARM_SUBSCRIPTION_ID="3fb6e3d6-f485-4cac-ae04-b06c555c3e6d"
 export ARM_TENANT_ID="630b4926-3eee-47e5-b0c1-1dd833cb304a"
 
 make az-logout
+
+#workspace azurerm-backend
+export MAKE_WORKSPACE="azurerm-backend"
+export CONFIG_NAME="cluster001"
+make force-init plan force-apply
+
+
 #workspace aks-cluster
 export MAKE_WORKSPACE="aks-cluster"
 export CONFIG_NAME="cluster001"
