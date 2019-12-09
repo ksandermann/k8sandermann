@@ -1,7 +1,3 @@
-provider "azurerm" {
-  version = "~> 1.38.0"
-}
-
 module "k8s-base" {
   source = "./../../modules/k8s-base"
 
