@@ -1,17 +1,5 @@
-
 ROOT_DIR := $(shell pwd)
-#CHECK_ENV := $(shell exit)
-#BACKEND_RESOURCE_GROUP_NAME := $(shell cat $(ROOT_DIR)/terraform/configuration/${CONFIG_NAME}.tfvars | grep backend_resource_group | sed -e 's/backend_resource_group_name = "\(.*\)"/\1/')
-#BACKEND_STORAGE_ACCOUNT_NAME := $(shell make check-env)
-#BACKEND_STORAGE_CONTAINER_NAME := $(shell pwd)
-#BACKEND_KEY := $(shell pwd)
-
-test123:
-	@cat $(ROOT_DIR)/terraform/configuration/cluster001.tfvars | grep backend_resource_group | sed -e 's/backend_resource_group_name = "\(.*\)"/\1/'
-
-test234:
-	@echo $(CHECK_ENV)
-
+WORKSPACE_CONFIG_NAME = ${CONFIG_NAME}
 
 check-env:
 ifndef MAKE_WORKSPACE
@@ -40,24 +28,17 @@ clean: check-env
 	@cd ./terraform/workspaces/${MAKE_WORKSPACE}
 	@rm -Rf .terraform
 
-//TODO sed has to except invite space before and after equals sign
+
 .ONESHELL:
-init: BACKEND_RESOURCE_GROUP_NAME := $(shell cat $(ROOT_DIR)/terraform/configuration/cluster001.tfvars | grep backend_resource_group | sed -e 's/backend_resource_group_name = "\(.*\)"/\1/')
-init: BACKEND_STORAGE_ACCOUNT_NAME:= $(shell cat $(ROOT_DIR)/terraform/configuration/cluster001.tfvars | grep backend_storage_account_name | sed -e 's/backend_storage_account_name = "\(.*\)"/\1/')
-init: BACKEND_STORAGE_CONTAINER_NAME:= $(shell cat $(ROOT_DIR)/terraform/configuration/cluster001.tfvars | grep backend_storage_container_name | sed -e 's/backend_storage_container_name = "\(.*\)"/\1/')
-init: BACKEND_KEY:= $(shell cat $(ROOT_DIR)/terraform/configuration/cluster001.tfvars | grep aks_cluster_name | sed -e 's/aks_cluster_name = "\(.*\)"/\1/')
+init: BACKEND_RESOURCE_GROUP_NAME:= $(shell cat $(ROOT_DIR)/terraform/configuration/$(WORKSPACE_CONFIG_NAME).tfvars | grep backend_resource_group | sed -e 's/backend_resource_group_name\s=\s"\(.*\)"/\1/')
+init: BACKEND_STORAGE_ACCOUNT_NAME:= $(shell cat $(ROOT_DIR)/terraform/configuration/$(WORKSPACE_CONFIG_NAME).tfvars | grep backend_storage_account_name | sed -e 's/backend_storage_account_name\s=\s"\(.*\)"/\1/')
+init: BACKEND_STORAGE_CONTAINER_NAME:= $(shell cat $(ROOT_DIR)/terraform/configuration/$(WORKSPACE_CONFIG_NAME).tfvars | grep backend_storage_container_name | sed -e 's/backend_storage_container_name\s=\s"\(.*\)"/\1/')
 init: check-env
 	@cd ./terraform/workspaces/${MAKE_WORKSPACE}
-
-	@echo $(BACKEND_RESOURCE_GROUP_NAME)
-	@echo $(BACKEND_STORAGE_ACCOUNT_NAME)
-	@echo $(BACKEND_STORAGE_CONTAINER_NAME)
-	@echo $(BACKEND_KEY)
-	#@terraform init \
-	#	-backend-config="resource_group_name=$(" \
-	#	-backend-config="storage_account_name=$cat $(ROOT_DIR)/terraform/configuration/${CONFIG_NAME}.tfvars | grep backend_storage_account_name | sed -e 's/backend_storage_account_name = "\(.*\)"/\1/')" \
-     #   -backend-config="container_name=$(cat $(ROOT_DIR)/terraform/configuration/${CONFIG_NAME}.tfvars | grep backend_storage_container_name | sed -e 's/backend_storage_container_name = "\(.*\)"/\1/')" \
-      #  -backend-config="key=$(cat $(ROOT_DIR)/terraform/configuration/${CONFIG_NAME}.tfvars | grep aks_cluster_name | sed -e 's/aks_cluster_name = "\(.*\)"/\1/')"
+	@terraform init \
+		-backend-config="resource_group_name=$(BACKEND_RESOURCE_GROUP_NAME)" \
+		-backend-config="storage_account_name=$(BACKEND_STORAGE_ACCOUNT_NAME)" \
+        -backend-config="container_name=$(BACKEND_STORAGE_CONTAINER_NAME)"
 
 
 force-init: clean init
@@ -92,8 +73,7 @@ plan: validate
 	@cd ./terraform/workspaces/${MAKE_WORKSPACE}
 	@terraform plan \
 		-var-file $(ROOT_DIR)/terraform/configuration/${CONFIG_NAME}.tfvars \
-		-out ${CONFIG_NAME}.plan \
-		-state=./${CONFIG_NAME}.tfstate
+		-out ${CONFIG_NAME}.plan
 
 force-plan: dismiss-plan plan
 
@@ -103,7 +83,6 @@ plan-destroy: dismiss-plan validate
 	@terraform plan \
 		-var-file $(ROOT_DIR)/terraform/configuration/${CONFIG_NAME}.tfvars \
 		-out ${CONFIG_NAME}.plan \
-		-state=./${CONFIG_NAME}.tfstate \
 		-destroy
 
 
@@ -111,14 +90,12 @@ plan-destroy: dismiss-plan validate
 apply: check-plan-exists
 	@cd ./terraform/workspaces/${MAKE_WORKSPACE}
 	@terraform apply \
-		-state=./${CONFIG_NAME}.tfstate \
 		${CONFIG_NAME}.plan
 
 .ONESHELL:
 force-apply: check-plan-exists
 	@cd ./terraform/workspaces/${MAKE_WORKSPACE}
 	@terraform apply \
-		-state=./${CONFIG_NAME}.tfstate \
 		-auto-approve \
 		${CONFIG_NAME}.plan \
 
@@ -138,9 +115,9 @@ az-login: check-env az-logout
 	@echo "Setting Subscription to ${ARM_SUBSCRIPTION_ID}..."
 	@az account set -s ${ARM_SUBSCRIPTION_ID}
 
-#TODO get rg and cluster from tf output
-kubectl-get-config: az-login
-	@az aks get-credentials --name pipelineCluster001 --resource-group pipelineCluster001 --subscription ${ARM_SUBSCRIPTION_ID} --admin --overwrite-existing
+.ONESHELL:
+kubectl-get-config: init az-login
+	@az aks get-credentials --name $(shell cd $(ROOT_DIR)/terraform/workspaces/${MAKE_WORKSPACE} && terraform output aks_cluster_name) --resource-group $(shell cd $(ROOT_DIR)/terraform/workspaces/${MAKE_WORKSPACE} && terraform output aks_resource_group_name) --subscription ${ARM_SUBSCRIPTION_ID} --admin --overwrite-existing
 
 
 .DEFAULT_GOAL := default

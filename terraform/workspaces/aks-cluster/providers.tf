@@ -1,6 +1,8 @@
 terraform {
   required_version = "0.12.17"
-  backend "azurerm" {}
+  backend "azurerm" {
+    key = "workspace_aks-cluster.tfstate"
+  }
 }
 
 
