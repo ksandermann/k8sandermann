@@ -1,0 +1,7 @@
+---
+- name: shel hello
+  delegate_to: localhost
+  run_once: true
+  shell: "echo hello"
+  args:
+    executable: /bin/sh

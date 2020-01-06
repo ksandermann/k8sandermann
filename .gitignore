@@ -1,0 +1,7 @@
+*.plan
+*.iml
+*.tfstate
+*.DS_Store
+*.terraform
+*.backup
+*.zip
