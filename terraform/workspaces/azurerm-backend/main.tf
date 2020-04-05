@@ -5,7 +5,7 @@ resource "azurerm_resource_group" backend {
 
 module "azurerm-backend" {
   //TODO switch to tag
-  source = "git::https://github.com/ksandermann/terraform-azurerm-backend.git?ref=init"
+  source = "git::https://github.com/ksandermann/terraform-azurerm-backend.git?ref=master"
 
   backend_resource_group_name              = azurerm_resource_group.backend.name
   backend_storage_account_name             = var.backend_storage_account_name

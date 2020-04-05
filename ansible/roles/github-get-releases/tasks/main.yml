@@ -1,7 +1,17 @@
 ---
-- name: shel hello
+
+- name: get github release list json
   delegate_to: localhost
   run_once: true
-  shell: "echo hello"
-  args:
-    executable: /bin/sh
+  uri:
+    url: "https://api.github.com/repos/{{ github_orga }}/{{ github_repo }}/releases?per_page=100"
+    return_content: true
+  register: github_release_json_response
+
+- name: parse github api response
+  set_fact:
+    github_releases_list: "{{ github_release_json_response.content | from_json | json_query('[*].tag_name') }}"
+
+- name: debug
+  debug:
+    msg: "{{ github_releases_list }}"

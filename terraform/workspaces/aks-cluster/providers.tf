@@ -1,5 +1,5 @@
 terraform {
-  required_version = "0.12.17"
+  required_version = "~>0.12"
   backend "azurerm" {
     key = "workspace_aks-cluster.tfstate"
   }
@@ -7,7 +7,8 @@ terraform {
 
 
 provider "azurerm" {
-  version = "1.38.0"
+  version = "2.2.0"
+  features {}
 }
 
 provider "azuread" {
